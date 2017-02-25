@@ -1,10 +1,12 @@
 package com.school.calculateaccountprofits;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.math.BigInteger;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
-import java.io.*;
 import java.util.Collections;
 
 /**
@@ -35,9 +37,12 @@ public class CalculateProfits {
                         } catch (Exception e) {
                             throw new Exception(e.toString() +" class is not defined!");
                         }
-                        Integer customerNumber = Integer.parseInt(depElement.getElementsByTagName("customerNumber").item(0).getTextContent());
-                        BigInteger depositBalance = new BigInteger(depElement.getElementsByTagName("depositBalance").item(0).getTextContent());
-                        Integer durationInDays = Integer.parseInt(depElement.getElementsByTagName("durationInDays").item(0).getTextContent());
+                        Integer customerNumber = Integer.parseInt(depElement
+                                .getElementsByTagName("customerNumber").item(0).getTextContent());
+                        BigInteger depositBalance = new BigInteger(depElement
+                                .getElementsByTagName("depositBalance").item(0).getTextContent());
+                        Integer durationInDays = Integer.parseInt(depElement
+                                .getElementsByTagName("durationInDays").item(0).getTextContent());
                         Constructor depConstructor = depClass.getConstructor(Integer.class,BigInteger.class,Integer.class);
 
                         Object depObject = null;
