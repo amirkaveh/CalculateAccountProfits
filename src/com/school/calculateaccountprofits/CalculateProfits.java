@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
@@ -15,7 +16,7 @@ import java.util.Collections;
 
 public class CalculateProfits {
     public static void main(String[] args) {
-        java.util.List<DepositType> depositObjects = new java.util.ArrayList<DepositType>();
+        java.util.List<Deposit> depositObjects = new java.util.ArrayList<Deposit>();
         try {
             File inputFile = new File("input.xml");
 
@@ -39,19 +40,19 @@ public class CalculateProfits {
                         }
                         Integer customerNumber = Integer.parseInt(depositElement
                                 .getElementsByTagName("customerNumber").item(0).getTextContent());
-                        BigInteger depositBalance = new BigInteger(depositElement
+                        BigDecimal depositBalance = new BigDecimal(depositElement
                                 .getElementsByTagName("depositBalance").item(0).getTextContent());
                         Integer durationInDays = Integer.parseInt(depositElement
                                 .getElementsByTagName("durationInDays").item(0).getTextContent());
-                        Constructor depConstructor = depositClass.getConstructor(Integer.class,BigInteger.class,Integer.class);
+                        Constructor depConstructor = depositClass.getConstructor();
 
-                        Object depositObject = null;
+                        Object depositTypeObject = null;
                         try {
-                            depositObject = depConstructor.newInstance(customerNumber, depositBalance, durationInDays);
+                            depositTypeObject = depConstructor.newInstance();
                         } catch(Exception e) {
                             throw new Exception(e.getCause());
                         }
-                        depositObjects.add((DepositType)depositObject);
+                        depositObjects.add(new Deposit(customerNumber,depositBalance,durationInDays, (DepositType) depositTypeObject));
                     }catch (Exception e){
                         System.out.println(e.getMessage());
                     }
@@ -62,13 +63,13 @@ public class CalculateProfits {
         }
         Collections.sort(depositObjects);
 
-        for (DepositType temp : depositObjects){
+        for (Deposit temp : depositObjects){
             System.out.println(temp.getCustomerNumber().toString()+ "#"+ temp.getPayedInterest().toString());
         }
 
         try{
             PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
-            for (DepositType temp : depositObjects){
+            for (Deposit temp : depositObjects){
                 writer.println(temp.getCustomerNumber().toString()+ "#"+ temp.getPayedInterest().toString());
             }
             writer.close();
