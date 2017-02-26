@@ -15,7 +15,7 @@ import java.util.Collections;
 
 public class CalculateProfits {
     public static void main(String[] args) {
-        java.util.List<BasicAccount> depObjects = new java.util.ArrayList<BasicAccount>();
+        java.util.List<DepositType> depositObjects = new java.util.ArrayList<DepositType>();
         try {
             File inputFile = new File("input.xml");
 
@@ -25,33 +25,33 @@ public class CalculateProfits {
             doc.getDocumentElement().normalize();
             NodeList deposits = doc.getElementsByTagName("deposit");
             for (int i=0; i<deposits.getLength(); i++) {
-                Node dep = deposits.item(i);
-                if(dep.getNodeType()== Node.ELEMENT_NODE){
-                    Element depElement = (Element) dep;
+                Node deposit = deposits.item(i);
+                if(deposit.getNodeType()== Node.ELEMENT_NODE){
+                    Element depositElement = (Element) deposit;
                     try {
-                        Class depClass = null;
+                        Class depositClass = null;
                         try {
-                            depClass = Class.forName("com.school.calculateaccountprofits." + depElement
+                            depositClass = Class.forName("com.school.calculateaccountprofits." + depositElement
                                     .getElementsByTagName("depositType")
                                     .item(0).getTextContent());
                         } catch (Exception e) {
                             throw new Exception(e.toString() +" class is not defined!");
                         }
-                        Integer customerNumber = Integer.parseInt(depElement
+                        Integer customerNumber = Integer.parseInt(depositElement
                                 .getElementsByTagName("customerNumber").item(0).getTextContent());
-                        BigInteger depositBalance = new BigInteger(depElement
+                        BigInteger depositBalance = new BigInteger(depositElement
                                 .getElementsByTagName("depositBalance").item(0).getTextContent());
-                        Integer durationInDays = Integer.parseInt(depElement
+                        Integer durationInDays = Integer.parseInt(depositElement
                                 .getElementsByTagName("durationInDays").item(0).getTextContent());
-                        Constructor depConstructor = depClass.getConstructor(Integer.class,BigInteger.class,Integer.class);
+                        Constructor depConstructor = depositClass.getConstructor(Integer.class,BigInteger.class,Integer.class);
 
-                        Object depObject = null;
+                        Object depositObject = null;
                         try {
-                            depObject = depConstructor.newInstance(customerNumber, depositBalance, durationInDays);
+                            depositObject = depConstructor.newInstance(customerNumber, depositBalance, durationInDays);
                         } catch(Exception e) {
                             throw new Exception(e.getCause());
                         }
-                        depObjects.add((BasicAccount)depObject);
+                        depositObjects.add((DepositType)depositObject);
                     }catch (Exception e){
                         System.out.println(e.getMessage());
                     }
@@ -60,16 +60,16 @@ public class CalculateProfits {
         }catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        Collections.sort(depObjects);
+        Collections.sort(depositObjects);
 
-        for (BasicAccount temp : depObjects){
-            System.out.println(temp.getCustomerNumber().toString()+ "#"+ temp.getPI().toString());
+        for (DepositType temp : depositObjects){
+            System.out.println(temp.getCustomerNumber().toString()+ "#"+ temp.getPayedInterest().toString());
         }
 
         try{
             PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
-            for (BasicAccount temp : depObjects){
-                writer.println(temp.getCustomerNumber().toString()+ "#"+ temp.getPI().toString());
+            for (DepositType temp : depositObjects){
+                writer.println(temp.getCustomerNumber().toString()+ "#"+ temp.getPayedInterest().toString());
             }
             writer.close();
         } catch (IOException e) {
