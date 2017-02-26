@@ -1,21 +1,21 @@
 package com.school.calculateaccountprofits;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.school.exceptions.DepositBalanceException;
+import com.school.exceptions.DurationInDaysException;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.*;
 import java.util.Collections;
 
 /**
- * Created by Hamid on 2/19/2017.
+ * Created by $Hamid on 2/19/2017.
  */
 
 public class CalculateProfits {
@@ -25,7 +25,7 @@ public class CalculateProfits {
         List<Deposit> depositList = nodeListToDepositList(depositNodeList);
         Collections.sort(depositList);
         logDepositList(depositList);
-        logDepositListToFile(depositList, "output.txt");
+        writeDepositListToFile(depositList, "output.txt");
 
     }
 
@@ -38,7 +38,7 @@ public class CalculateProfits {
         return doc.getElementsByTagName(elementsTagName);
     }
 
-    private static List<Deposit> nodeListToDepositList(NodeList nodeList) {
+    private static List<Deposit> nodeListToDepositList(NodeList nodeList) throws Exception {
         List<Deposit> depositList = new ArrayList<Deposit>();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node deposit = nodeList.item(i);
@@ -46,13 +46,10 @@ public class CalculateProfits {
                 Element depositElement = (Element) deposit;
                 try {
                     Class depositClass = null;
-                    try {
-                        depositClass = Class.forName("com.school.calculateaccountprofits." + depositElement
-                                .getElementsByTagName("depositType")
-                                .item(0).getTextContent());
-                    } catch (Exception e) {
-                        throw new Exception(e.toString() + " class is not defined!");
-                    }
+                    depositClass = Class.forName("com.school.calculateaccountprofits." + depositElement
+                            .getElementsByTagName("depositType")
+                            .item(0).getTextContent());
+
                     Integer customerNumber = Integer.parseInt(depositElement
                             .getElementsByTagName("customerNumber").item(0).getTextContent());
                     BigDecimal depositBalance = new BigDecimal(depositElement
@@ -62,14 +59,13 @@ public class CalculateProfits {
                     Constructor depConstructor = depositClass.getConstructor();
 
                     Object depositTypeObject = null;
-                    try {
-                        depositTypeObject = depConstructor.newInstance();
-                    } catch (Exception e) {
-                        throw new Exception(e.getCause());
-                    }
+                    depositTypeObject = depConstructor.newInstance();
+
                     depositList.add(new Deposit(customerNumber, depositBalance, durationInDays, (DepositType) depositTypeObject));
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                } catch (DepositBalanceException | DurationInDaysException e) {
+                    System.out.println(e);
+                } catch (ClassNotFoundException e) {
+                    System.out.println(e + " is not found!");
                 }
             }
         }
@@ -82,15 +78,12 @@ public class CalculateProfits {
         }
     }
 
-    private static void logDepositListToFile(List<Deposit> depositList, String outputFileName) throws Exception {
+    private static void writeDepositListToFile(List<Deposit> depositList, String outputFileName) throws Exception {
 
         PrintWriter writer = new PrintWriter(outputFileName, "UTF-8");
         for (Deposit temp : depositList) {
             writer.println(temp.getCustomerNumber().toString() + "#" + temp.getPayedInterest().toString());
         }
         writer.close();
-
     }
-
-
 }

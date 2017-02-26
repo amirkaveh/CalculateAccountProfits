@@ -1,12 +1,15 @@
 package com.school.calculateaccountprofits;
 
+import com.school.exceptions.DepositBalanceException;
+import com.school.exceptions.DurationInDaysException;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Created by Hamid on 2/19/2017.
+ * Created by $Hamid on 2/19/2017.
  */
-public class Deposit implements Comparable<Deposit> {
+class Deposit implements Comparable<Deposit> {
 
     private Integer customerNumber;
     private BigDecimal depositBalance;
@@ -17,10 +20,10 @@ public class Deposit implements Comparable<Deposit> {
     public Deposit(Integer customerNumber, BigDecimal depositBalance, Integer durationInDays, DepositType depositType) throws Exception {
         this.customerNumber = customerNumber;
         if (depositBalance.compareTo(BigDecimal.ZERO) < 0)
-            throw new IllegalArgumentException("DepositBalance can not be negative!");
+            throw new DepositBalanceException("The value can not be negative!");
         this.depositBalance = depositBalance;
         if (durationInDays <= 0)
-            throw new IllegalArgumentException("DurationInDays must be positive!");
+            throw new DurationInDaysException("The value must be positive!");
         this.durationInDays = durationInDays;
         this.depositType = depositType;
         calculatePayedInterest();
